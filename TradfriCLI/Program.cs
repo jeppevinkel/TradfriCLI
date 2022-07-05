@@ -26,8 +26,10 @@ namespace TradfriCLI
         {
             // Console.WriteLine(string.Join(' ', args));
 
-            await Parser.Default.ParseArguments<DevicesCommand>(args)
-                .WithParsedAsync(t => t.Execute());
+            await Parser.Default.ParseArguments<DevicesCommand, GeneratePskCommand>(args)
+                .WithParsedAsync<ICommand>(t => t.Execute());
+            
+            return;
 
             if (args[0] == "-devices")
             {

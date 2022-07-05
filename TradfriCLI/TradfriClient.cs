@@ -37,7 +37,7 @@ namespace TradfriCLI
         /// </summary>
         /// <param name="gatewayPsk">The PSK found on the bottom of the gateway.</param>
         /// <exception cref="Exception"></exception>
-        public async Task GenerateTradfriPskToken(string gatewayPsk)
+        public async Task<Psk> GenerateTradfriPskToken(string gatewayPsk)
         {
             using (var coapClient = _coapFactory.CreateClient())
             {
@@ -60,15 +60,19 @@ namespace TradfriCLI
 
                 var response = await coapClient.RequestAsync(request, CancellationToken.None).ConfigureAwait(false);
 
-                PrintResponse(response);
-                
-                if (response.StatusCode != CoapResponseStatusCode.Valid)
+                if (response.StatusCode != CoapResponseStatusCode.Created)
                 {
                     throw new Exception($"Error: {response.StatusCode} ({(int) response.StatusCode})");
                 }
 
                 var pskResponse = JsonSerializer.Deserialize<PskResponse>(Encoding.UTF8.GetString(response.Payload));
-                Console.WriteLine($"PSK: {pskResponse.PreSharedKey}\nFirmware Version: {pskResponse.GatewayFirmwareVersion}");
+
+                if (pskResponse is null)
+                {
+                    throw new Exception("Didn't receive any PSK from the gateway.");
+                }
+
+                return new Psk(pskResponse);
             }
         }
 

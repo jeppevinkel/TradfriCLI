@@ -32,8 +32,7 @@ namespace TradfriCLI.Commands
                 Console.WriteLine(e.Serialize());
                 return;
             }
-            
-            
+
             Console.WriteLine(JsonSerializer.Serialize((IEnumerable<object>)devices));
         }
     }
